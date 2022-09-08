@@ -1,24 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+
+export const BASE_URL = "http://localhost:8080";
 
 function App() {
+  const queryClient = useQueryClient();
+
+  const { isLoading, data: count } = useQuery<number>(["counter"], () =>
+    fetch(`${BASE_URL}/counter`).then((res) => res.json())
+  );
+
+  const { mutate } = useMutation(
+    (increment: number) =>
+      fetch(`${BASE_URL}/counter`, {
+        method: "POST",
+        body: JSON.stringify(increment),
+      }),
+    {
+      onSuccess() {
+        queryClient.invalidateQueries("counter");
+      },
+    }
+  );
+
+  const increase = () => {
+    mutate(1);
+  };
+
+  const decrease = () => {
+    mutate(-1);
+  };
+
+  if (isLoading) {
+    return <>...Loading</>;
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>{count ?? 1}</div>
+      <div onClick={increase}>+</div>
+      <div onClick={decrease}>-</div>
     </div>
   );
 }
