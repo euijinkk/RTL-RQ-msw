@@ -1,17 +1,12 @@
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
-// allows you to do things like:
-// expect(element).toHaveTextContent(/react/i)
-// learn more: https://github.com/testing-library/jest-dom
+// 아마 이 파일이 jest.config.js에 주입되어 있을 것이다.
 import "@testing-library/jest-dom";
 import { setupServer } from "msw/node";
 import { counterHandler } from "./mocks/handler";
-
+// msw를 서버로 사용하여 테스트한다.
 export const server = setupServer(...counterHandler);
 
-// Establish API mocking before all tests.
 beforeAll(() => server.listen());
-// Reset any request handlers that we may add during the tests,
-// so they don't affect other tests.
+
 afterEach(() => server.resetHandlers());
-// Clean up after the tests are finished.
+
 afterAll(() => server.close());
